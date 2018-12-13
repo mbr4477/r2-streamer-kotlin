@@ -9,11 +9,10 @@
 
 package org.readium.r2.streamer.parser
 
-import android.util.Log
-import android.webkit.MimeTypeMap
 import org.readium.r2.shared.*
 import java.io.File
 import org.readium.r2.streamer.container.ContainerCbz
+import java.nio.file.Files
 
 // Some constants useful to parse an Cbz document
 const val mimetypeCBZ = "application/vnd.comicbook+zip"
@@ -53,13 +52,13 @@ class CbzParser : PublicationParser {
         val container = try {
             generateContainerFrom(fileAtPath)
         } catch (e: Exception) {
-            Log.e("Error", "Could not generate container", e)
+            println("Error: Could not generate container $e")
             return null
         }
         val listFiles = try {
             container.getFilesList()
         } catch (e: Exception) {
-            Log.e("Error", "Missing File : META-INF/container.xml", e)
+            println("Error: Missing File : META-INF/container.xml $e")
             return null
         }
 
@@ -89,10 +88,9 @@ class CbzParser : PublicationParser {
     private fun getMimeType(fileName: String): String? {
         return try {
             val name = fileName.replace(" ", "").replace("'", "").replace(",", "")
-            val extension = MimeTypeMap.getFileExtensionFromUrl(name)
-            MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+            Files.probeContentType(File(name).toPath())
         } catch (e: Exception) {
-            Log.e("Error", "Something went wrong while getMimeType() : ${e.message}")
+            println("Error: Something went wrong while getMimeType() : ${e.message}")
             null
         }
     }
@@ -108,7 +106,7 @@ class CbzParser : PublicationParser {
 //            val file = File(path)
 //            listCBZ = file.list().filter { it.endsWith(".cbz") }
 //        } catch (e: Exception){
-//            Log.e("Error", "Can't open the file (${e.message})")
+//            println("Error", "Can't open the file (${e.message})")
 //        }
 //        return listCBZ
 //    }

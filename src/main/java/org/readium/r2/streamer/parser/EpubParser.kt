@@ -9,7 +9,6 @@
 
 package org.readium.r2.streamer.parser
 
-import android.util.Log
 import org.readium.r2.shared.ContentLayoutStyle
 import org.readium.r2.shared.drm.Drm
 import org.readium.r2.shared.Encryption
@@ -20,8 +19,6 @@ import org.readium.r2.streamer.container.Container
 import org.readium.r2.streamer.container.ContainerEpub
 import org.readium.r2.streamer.container.ContainerEpubDirectory
 import org.readium.r2.streamer.container.EpubContainer
-import org.readium.r2.streamer.fetcher.forceScrollPreset
-import org.readium.r2.streamer.fetcher.userSettingsUIPreset
 import org.readium.r2.streamer.parser.epub.EncryptionParser
 import org.readium.r2.streamer.parser.epub.NCXParser
 import org.readium.r2.streamer.parser.epub.NavigationDocumentParser
@@ -70,25 +67,24 @@ class EpubParser : PublicationParser {
         val container = try {
             generateContainerFrom(fileAtPath)
         } catch (e: Exception) {
-            Log.e("Error", "Could not generate container", e)
+            println("Error: Could not generate container")
             return null
         }
         val data = try {
             container.data(containerDotXmlPath)
         } catch (e: Exception) {
-            Log.e("Error", "Missing File : META-INF/container.xml", e)
+            println("Error: Missing File : META-INF/container.xml")
             return null
         }
 
         container.rootFile.mimetype = mimetype
         container.rootFile.rootFilePath = getRootFilePath(data)
-
         val xmlParser = XmlParser()
 
         val documentData = try {
             container.data(container.rootFile.rootFilePath)
         } catch (e: Exception) {
-            Log.e("Error", "Missing File : ${container.rootFile.rootFilePath}", e)
+            println("Error: Missing File : ${container.rootFile.rootFilePath}")
             return null
         }
 
@@ -148,13 +144,13 @@ class EpubParser : PublicationParser {
 
         publication.cssStyle = contentLayoutStyle.name
 
-        userSettingsUIPreset.get(ContentLayoutStyle.layout(publication.cssStyle as String))?.let {
-            if (publication.type == Publication.TYPE.WEBPUB) {
-                publication.userSettingsUIPreset = forceScrollPreset
-            } else {
-                publication.userSettingsUIPreset = it
-            }
-        }
+//        userSettingsUIPreset.get(ContentLayoutStyle.layout(publication.cssStyle as String))?.let {
+//            if (publication.type == Publication.TYPE.WEBPUB) {
+//                publication.userSettingsUIPreset = forceScrollPreset
+//            } else {
+//                publication.userSettingsUIPreset = it
+//            }
+//        }
     }
 
     private fun fillEncryptionProfile(publication: Publication, drm: Drm?): Publication {
@@ -199,14 +195,14 @@ class EpubParser : PublicationParser {
         val navDocument = try {
             container.xmlDocumentForResource(navLink)
         } catch (e: Exception) {
-            Log.e("Error", "Navigation parsing", e)
+            println("Error: Navigation parsing $e")
             return
         }
 
         val navByteArray = try {
             container.xmlAsByteArray(navLink)
         } catch (e: Exception) {
-            Log.e("Error", "Navigation parsing", e)
+            println("Error: Navigation parsing $e")
             return
         }
 
@@ -226,7 +222,7 @@ class EpubParser : PublicationParser {
         val ncxDocument = try {
             container.xmlDocumentForResource(ncxLink)
         } catch (e: Exception) {
-            Log.e("Error", "Ncx parsing", e)
+            println("Error: Ncx parsing $e")
             return
         }
         ncxp.ncxDocumentPath = ncxLink.href ?: return

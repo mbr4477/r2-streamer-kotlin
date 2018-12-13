@@ -9,7 +9,6 @@
 
 package org.readium.r2.streamer.parser.epub
 
-import android.util.Log
 import org.joda.time.DateTime
 import org.readium.r2.shared.*
 import org.readium.r2.shared.parser.xml.Node
@@ -94,7 +93,7 @@ class OPFParser {
     private fun parseSpine(spine: Node, publication: Publication) {
         val spineItems = spine.get("itemref")!!
         if (spineItems.isEmpty()) {
-            Log.d("Warning", "Spine has no children elements")
+            println("Warning: Spine has no children elements")
             return
         }
         for (item in spineItems) {
